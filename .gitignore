@@ -1,0 +1,7 @@
+/bin
+/include
+/lib
+/lib64
+/R_stuff
+/share
+*.csv
