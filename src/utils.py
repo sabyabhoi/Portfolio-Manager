@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import pandas as pd
 import numpy as np
 import yfinance as yf
@@ -39,15 +39,17 @@ class PortfolioOptimizer:
     tickers: list[str]
     rf: float
     tangency: bool = False
+    df: pd.DataFrame = field(default=None)
 
     def __post_init__(self) -> None:
-        ic("Fetching ticker data")
-        df = get_multiple_returns(self.tickers)
+        if self.df is None:
+            ic("Fetching ticker data")
+            self.df = get_multiple_returns(self.tickers)
 
-        self.exp_ret = (((1 + df.mean()) ** 252) - 1).to_numpy()
+        self.exp_ret = (((1 + self.df.mean()) ** 252) - 1).to_numpy()
         self.exp_ret = self.exp_ret.reshape(len(self.exp_ret), 1)
 
-        self.cov_mat = (df.cov() * 252).to_numpy()
+        self.cov_mat = (self.df.cov() * 252).to_numpy()
 
     def portfolio_fitness(self, w) -> float:
         if abs(w.sum() - 1) > 1e-2:
@@ -108,7 +110,7 @@ class PortfolioOptimizer:
 class GeneticAlgorithm:
     fitness: callable
     iterations = 2000
-    mutation_variation = 0.2
+    mutation_variation = 0.3
     offsprings = 200
     top_select = offsprings // 2
 
