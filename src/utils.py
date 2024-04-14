@@ -1,19 +1,49 @@
 from dataclasses import dataclass, field
+import datetime as dt
 import pandas as pd
 import numpy as np
 import yfinance as yf
-import seaborn as sns
+import os
 from icecream import ic
+
+from skfolio import Population, RiskMeasure, Portfolio
+from skfolio.optimization import (
+    MeanRisk,
+    ObjectiveFunction,
+)
 
 
 def get_returns(ticker: str, index=False):
-    if index:
-        df = yf.download(ticker, period="max", progress=False)
-    else:
-        df = yf.download(ticker + ".NS", period="max", progress=False)
-    df["Returns"] = df["Adj Close"].pct_change()
-    df = df.dropna()[["Returns"]]
-    return df.rename(columns={"Returns": ticker}).reset_index().dropna()
+    filepath = "../res/data/" + ticker + ".parquet"
+
+    def process_df(df):
+        df["Returns"] = df["Adj Close"].pct_change()
+        df = df.dropna()[["Returns"]]
+        df = df.rename(columns={"Returns": ticker}).reset_index().dropna()
+        return df
+
+    if os.path.exists(filepath):
+        df = pd.read_parquet(filepath)
+        last = (dt.datetime.now() - dt.timedelta(3)).date()
+
+        if df.Date.iloc[-1] >= pd.Timestamp(last):
+            return df
+
+        df1 = yf.download(
+            ticker if index else ticker + ".NS",
+            start=df.Date.iloc[-1].date().isoformat(),
+            progress=False,
+        )
+        if df1.empty:
+            return df
+        df1 = process_df(df1)
+        return pd.concat([df, df1])
+
+    df = yf.download(ticker if index else ticker + ".NS", period="max", progress=False)
+
+    df = process_df(df)
+    df.to_parquet(filepath)
+    return df
 
 
 def get_multiple_returns(tickers: list[str]):
@@ -150,3 +180,27 @@ class GeneticAlgorithm:
         solutions = pd.DataFrame(solutions).mean().to_numpy()
         solutions = solutions.reshape(solutions.shape[0], 1)
         return solutions
+
+
+def rolling_window_portfolio(X, division=5):
+    N = X.shape[0]
+    k = N // division
+
+    l, r = 0, k
+    pred = []
+    for i in range(division):
+
+        model = MeanRisk(
+            objective_function=ObjectiveFunction.MAXIMIZE_RATIO,
+            risk_measure=RiskMeasure.VARIANCE,
+        )
+        pred.append(model.fit_predict(X.iloc[l:r]))
+        l += k
+        r += k
+
+    population = Population(pred)
+    composition = population.composition()
+    weights = composition.T.mean().to_numpy()
+
+    mean_portfolio = Portfolio(X=X, weights=weights, name="Rolling Window")
+    return mean_portfolio

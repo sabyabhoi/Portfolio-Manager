@@ -2,6 +2,7 @@
 /include
 /lib
 /lib64
+/etc
 /R_stuff
 /share
 *.csv
