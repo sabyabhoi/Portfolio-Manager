@@ -9,3 +9,4 @@
 /res
 /src/__pycache__
 venv
+.direnv

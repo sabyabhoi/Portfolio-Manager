@@ -16,6 +16,7 @@
             yfinance
             icecream
             venvShellHook
+            seaborn
             pyarrow
           ]; 
         };
