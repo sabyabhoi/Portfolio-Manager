@@ -4,7 +4,7 @@ This tool uses the [SKFolio](https://github.com/skfolio/skfolio) library to opti
 
 There are two main files in this project: 
 1. `src/portfolio_analysis.ipynb`
-2. `src/skfolio_testing.ipynb`
+2. `src/skfolio_analysis.ipynb`
 
 The first file is legacy code kept around for reference (ignore it). The second file is the main piece of code where the optimization takes place. 
 
