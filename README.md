@@ -7,3 +7,5 @@ There are two main files in this project:
 2. `src/skfolio_testing.ipynb`
 
 The first file is legacy code kept around for reference (ignore it). The second file is the main piece of code where the optimization takes place. 
+
+**Important Note**: the plots given in `src/skfolio_testing.ipynb` won't show up on the github since they are in HTML format. Run the code locally in order to view the plots. 
