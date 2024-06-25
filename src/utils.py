@@ -14,7 +14,8 @@ from skfolio.optimization import (
 
 
 def get_returns(ticker: str, index=False):
-    filepath = "../res/data/" + ticker + ".parquet"
+    DATA_PATH = os.environ.get('DATA_PATH')
+    filepath = DATA_PATH + '/' + ticker + ".parquet"
 
     def process_df(df):
         df["Returns"] = df["Adj Close"].pct_change()
@@ -49,7 +50,10 @@ def get_returns(ticker: str, index=False):
 def get_multiple_returns(tickers: list[str]):
     df = get_returns(tickers[0])
     for t in tickers[1:]:
-        df = pd.merge(df, get_returns(t), on="Date")
+        print(f'Fetching data for {t}:', end=' ')
+        tmp = get_returns(t)
+        print(f'{tmp.shape[0]} rows')
+        df = pd.merge(df, tmp, on="Date")
     df.index = df["Date"]
     return df.drop(columns=["Date"]).dropna()
 
