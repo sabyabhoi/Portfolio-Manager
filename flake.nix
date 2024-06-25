@@ -14,9 +14,11 @@
             scipy
             jupyter
             yfinance
+            python-dotenv
             icecream
             venvShellHook
             seaborn
+            babel
             pyarrow
           ]; 
         };

@@ -6,7 +6,7 @@
 /R_stuff
 /share
 *.csv
-/res
+/res/data
 /src/__pycache__
 venv
 .direnv

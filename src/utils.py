@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from babel.numbers import format_currency
 import datetime as dt
 import pandas as pd
 import numpy as np
@@ -12,7 +13,22 @@ from skfolio.optimization import (
     ObjectiveFunction,
 )
 
+def fv(amount: float, r: float, t: float):
+    return (amount * ((1 + r)**t - 1) * (1 + r)) / r
 
+
+def print_sip_info(monthly_amount, annual_rate, months):
+    fmt = lambda amt: format_currency(amt, 'INR', locale='en_IN')
+
+    monthly_rate = (1+annual_rate)**(1/12) - 1
+    future_amount = fv(monthly_amount, monthly_rate, months)
+
+    print('amount invested:', fmt(monthly_amount*months))
+    print('final amount:', fmt(future_amount))
+    print('amount gained:', fmt(future_amount - monthly_amount*months))
+    print(f'CAGR: {round((future_amount - monthly_amount*months) / (monthly_amount*months) * 100, 2)}%')
+
+print_sip_info(50_000, 0.7, 12*5)
 def get_returns(ticker: str, index=False):
     DATA_PATH = os.environ.get('DATA_PATH')
     filepath = DATA_PATH + '/' + ticker + ".parquet"
