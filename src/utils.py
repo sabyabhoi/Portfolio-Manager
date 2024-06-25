@@ -7,6 +7,9 @@ import yfinance as yf
 import os
 from icecream import ic
 
+from dotenv import load_dotenv
+load_dotenv()
+
 from skfolio import Population, RiskMeasure, Portfolio
 from skfolio.optimization import (
     MeanRisk,
@@ -28,9 +31,8 @@ def print_sip_info(monthly_amount, annual_rate, months):
     print('amount gained:', fmt(future_amount - monthly_amount*months))
     print(f'CAGR: {round((future_amount - monthly_amount*months) / (monthly_amount*months) * 100, 2)}%')
 
-print_sip_info(50_000, 0.7, 12*5)
 def get_returns(ticker: str, index=False):
-    DATA_PATH = os.environ.get('DATA_PATH')
+    DATA_PATH = os.getenv('DATA_PATH')
     filepath = DATA_PATH + '/' + ticker + ".parquet"
 
     def process_df(df):
