@@ -15,6 +15,7 @@
             jupyter
             yfinance
             python-dotenv
+            statsmodels
             icecream
             venvShellHook
             seaborn
